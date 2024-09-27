@@ -29,78 +29,87 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.min.js"></script>
-    <script>
-        const socket = io();
+<script>
+    const socket = io();
 
-        // Đăng ký tài khoản
-        document.getElementById('register-btn').onclick = async function() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+    // Hàm cuộn xuống khi có tin nhắn mới
+    function scrollToBottom() {
+        const messagesDiv = document.getElementById('messages');
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
 
-            const response = await fetch('/register', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            });
+    // Đăng ký tài khoản
+    document.getElementById('register-btn').onclick = async function() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
 
-            const data = await response.json();
-            if (data.success) {
-                alert('Đăng ký thành công!');
-                document.getElementById('auth-container').style.display = 'none';
-                document.getElementById('nickname-container').style.display = 'block';
-            } else {
-                alert(data.message);
-            }
-        };
-
-        // Đăng nhập
-        document.getElementById('login-btn').onclick = async function() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-
-            const response = await fetch('/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            });
-
-            const data = await response.json();
-            if (data.success) {
-                document.getElementById('auth-container').style.display = 'none';
-                document.getElementById('chat-container').style.display = 'block';
-                loadMessages();
-            } else {
-                alert(data.message);
-            }
-        };
-
-        // Lưu nickname
-        document.getElementById('submit-nickname-btn').onclick = async function() {
-            const nickname = document.getElementById('nickname').value;
-
-            socket.emit('setNickname', nickname);
-            document.getElementById('nickname-container').style.display = 'none';
-            document.getElementById('chat-container').style.display = 'block';
-        };
-
-        // Gửi tin nhắn
-        document.getElementById('send-btn').onclick = function() {
-            const message = document.getElementById('message').value;
-            socket.emit('sendMessage', message);
-            document.getElementById('message').value = '';
-        };
-
-        // Nhận tin nhắn
-        socket.on('receiveMessage', (data) => {
-            const messagesDiv = document.getElementById('messages');
-            const messageElement = document.createElement('div');
-            messageElement.textContent = `${data.nickname}: ${data.message}`;
-            messagesDiv.appendChild(messageElement);
+        const response = await fetch('/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
         });
 
-        function loadMessages() {
-            // Gọi API để tải tin nhắn nếu cần
+        const data = await response.json();
+        if (data.success) {
+            alert('Đăng ký thành công!');
+            document.getElementById('auth-container').style.display = 'none';
+            document.getElementById('nickname-container').style.display = 'block';
+        } else {
+            alert(data.message);
         }
-    </script>
+    };
+
+    // Đăng nhập
+    document.getElementById('login-btn').onclick = async function() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        const response = await fetch('/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            document.getElementById('auth-container').style.display = 'none';
+            document.getElementById('chat-container').style.display = 'block';
+            loadMessages();
+        } else {
+            alert(data.message);
+        }
+    };
+
+    // Lưu nickname
+    document.getElementById('submit-nickname-btn').onclick = async function() {
+        const nickname = document.getElementById('nickname').value;
+
+        socket.emit('setNickname', nickname);
+        document.getElementById('nickname-container').style.display = 'none';
+        document.getElementById('chat-container').style.display = 'block';
+    };
+
+    // Gửi tin nhắn
+    document.getElementById('send-btn').onclick = function() {
+        const message = document.getElementById('message').value;
+        socket.emit('sendMessage', message);
+        document.getElementById('message').value = '';
+    };
+
+    // Nhận tin nhắn
+    socket.on('receiveMessage', (data) => {
+        const messagesDiv = document.getElementById('messages');
+        const messageElement = document.createElement('div');
+        messageElement.textContent = `${data.nickname}: ${data.message}`;
+        messagesDiv.appendChild(messageElement);
+
+        // Cuộn xuống khi có tin nhắn mới
+        scrollToBottom();
+    });
+
+    function loadMessages() {
+        // Gọi API để tải tin nhắn nếu cần
+    }
+</script>
 </body>
 </html>
