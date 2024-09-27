@@ -7,7 +7,7 @@
     <title>Chat App</title>
 </head>
 <body>
-    <div id="auth-container">
+    <div id="auth-container" style="display: block;">
         <h2>Đăng nhập/Đăng ký</h2>
         <input type="email" id="email" placeholder="Email" required>
         <input type="password" id="password" placeholder="Mật khẩu" required>
@@ -28,9 +28,79 @@
         <button id="send-btn">Gửi</button>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-firestore.js"></script>
-    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.min.js"></script>
+    <script>
+        const socket = io();
+
+        // Đăng ký tài khoản
+        document.getElementById('register-btn').onclick = async function() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const response = await fetch('/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                alert('Đăng ký thành công!');
+                document.getElementById('auth-container').style.display = 'none';
+                document.getElementById('nickname-container').style.display = 'block';
+            } else {
+                alert(data.message);
+            }
+        };
+
+        // Đăng nhập
+        document.getElementById('login-btn').onclick = async function() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                document.getElementById('auth-container').style.display = 'none';
+                document.getElementById('chat-container').style.display = 'block';
+                loadMessages();
+            } else {
+                alert(data.message);
+            }
+        };
+
+        // Lưu nickname
+        document.getElementById('submit-nickname-btn').onclick = async function() {
+            const nickname = document.getElementById('nickname').value;
+
+            socket.emit('setNickname', nickname);
+            document.getElementById('nickname-container').style.display = 'none';
+            document.getElementById('chat-container').style.display = 'block';
+        };
+
+        // Gửi tin nhắn
+        document.getElementById('send-btn').onclick = function() {
+            const message = document.getElementById('message').value;
+            socket.emit('sendMessage', message);
+            document.getElementById('message').value = '';
+        };
+
+        // Nhận tin nhắn
+        socket.on('receiveMessage', (data) => {
+            const messagesDiv = document.getElementById('messages');
+            const messageElement = document.createElement('div');
+            messageElement.textContent = `${data.nickname}: ${data.message}`;
+            messagesDiv.appendChild(messageElement);
+        });
+
+        function loadMessages() {
+            // Gọi API để tải tin nhắn nếu cần
+        }
+    </script>
 </body>
 </html>
