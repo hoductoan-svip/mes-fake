@@ -65,3 +65,7 @@ button:hover {
     text-align: left;
     color: #ff4500;
 }
+.nickname {
+    font-weight: bold; /* Đặt nickname thành in đậm */
+    color: #3498db; /* Màu sắc mà bạn muốn cho nickname */
+}
