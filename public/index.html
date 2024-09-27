@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Chat App</title>
+</head>
+<body>
+    <div id="auth-container">
+        <h2>Đăng nhập/Đăng ký</h2>
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="password" id="password" placeholder="Mật khẩu" required>
+        <button id="register-btn">Đăng ký</button>
+        <button id="login-btn">Đăng nhập</button>
+    </div>
+
+    <div id="nickname-container" style="display: none;">
+        <h2>Nhập nickname</h2>
+        <input type="text" id="nickname" placeholder="Nhập nickname" required>
+        <button id="submit-nickname-btn">Lưu</button>
+    </div>
+
+    <div id="chat-container" style="display: none;">
+        <h2>Chat</h2>
+        <div id="messages"></div>
+        <input type="text" id="message" placeholder="Nhập tin nhắn" required>
+        <button id="send-btn">Gửi</button>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-firestore.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
