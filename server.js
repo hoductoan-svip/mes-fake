@@ -69,10 +69,10 @@ io.on('connection', (socket) => {
         const newMessage = new Message(msg);
         newMessage.save().then(() => {
             console.log(`Tin nhắn từ ${nickname} đã được lưu.`);
+            io.emit('receiveMessage', msg); // Gửi tin nhắn đến tất cả người dùng
         }).catch((err) => {
             console.error('Lỗi khi lưu tin nhắn:', err);
         });
-        io.emit('receiveMessage', msg);
     });
 
     // Xử lý khi người dùng ngắt kết nối
