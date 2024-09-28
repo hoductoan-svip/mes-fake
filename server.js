@@ -16,7 +16,9 @@ app.use(express.static('public'));
 
 // Kết nối MongoDB
 mongoose.connect('mongodb+srv://thanhalinh56:efKr1iSs7U3VvNws@cluster1.r0ghg.mongodb.net/cluster1?retryWrites=true&w=majority&appName=Cluster1&ssl=true', 
-
+{ useNewUrlParser: true, useUnifiedTopology: true })
+.then(() => console.log('Kết nối đến MongoDB thành công!'))
+.catch(err => console.error('Lỗi kết nối đến MongoDB:', err));
 
 // Định nghĩa schema và model
 const userSchema = new mongoose.Schema({
