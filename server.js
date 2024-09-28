@@ -16,7 +16,7 @@ app.use(express.static('public'));
 
 // Kết nối MongoDB
 mongoose.connect('mongodb+srv://nguyenthimycute1106:o1UWInZVVMJQx5M0@cluster1.ne5vi.mongodb.net/?retryWrites=true&w=majority&appName=cluster1&ssl=true', 
-)
+{ useNewUrlParser: true, useUnifiedTopology: true })
 .then(() => console.log('Kết nối đến MongoDB thành công!'))
 .catch(err => console.error('Lỗi kết nối đến MongoDB:', err));
 
@@ -67,11 +67,7 @@ io.on('connection', (socket) => {
         const newMessage = new Message(msg);
         newMessage.save().then(() => {
             console.log(`Tin nhắn từ ${nickname} đã được lưu.`);
-<<<<<<< HEAD
-            io.emit('receiveMessage', msg); 
-=======
             io.emit('receiveMessage', msg); // Gửi tin nhắn đến tất cả người dùng
->>>>>>> 7366a6841862b42327a71df4558a51c599c01d4a
         }).catch((err) => {
             console.error('Lỗi khi lưu tin nhắn:', err);
         });
@@ -119,4 +115,4 @@ const PORT = process.env.PORT || 3000;
 
 server.listen(PORT, () => {
     console.log(`Server đang chạy trên cổng ${PORT}`);
-});
+}); 
