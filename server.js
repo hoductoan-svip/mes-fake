@@ -15,8 +15,10 @@ app.use(bodyParser.json());
 app.use(express.static('public'));
 
 // Kết nối MongoDB
-mongoose.connect('mongodb+srv://thanhalinh56:efKr1iSs7U3VvNws@cluster1.r0ghg.mongodb.net/cluster1?retryWrites=true&w=majority&appName=Cluster1&ssl=true', {
-});
+mongoose.connect('mongodb+srv://nguyenthimycute1106:o1UWInZVVMJQx5M0@cluster1.ne5vi.mongodb.net/?retryWrites=true&w=majority', 
+{ useNewUrlParser: true, useUnifiedTopology: true })
+.then(() => console.log('Kết nối đến MongoDB thành công!'))
+.catch(err => console.error('Lỗi kết nối đến MongoDB:', err));
 
 // Định nghĩa schema và model
 const userSchema = new mongoose.Schema({
@@ -44,16 +46,15 @@ const messageSchema = new mongoose.Schema({
 const Message = mongoose.model('Message', messageSchema);
 
 // Quản lý nickname
-const nicknames = {};  // Đối tượng để lưu trữ nickname của từng socket
+const nicknames = {}; 
 
 io.on('connection', (socket) => {
     let nickname = '';
     let visitEntry = null;
 
-    // Xử lý khi người dùng đặt nickname
     socket.on('setNickname', (nick) => {
         nickname = nick;
-        nicknames[socket.id] = nickname; // Lưu nickname vào đối tượng nicknames
+        nicknames[socket.id] = nickname; 
 
         visitEntry = new VisitLog({ nickname });
         visitEntry.save().then(() => {
@@ -61,19 +62,17 @@ io.on('connection', (socket) => {
         });
     });
 
-    // Xử lý khi người dùng gửi tin nhắn
     socket.on('sendMessage', (message) => {
         const msg = { nickname, message };
         const newMessage = new Message(msg);
         newMessage.save().then(() => {
             console.log(`Tin nhắn từ ${nickname} đã được lưu.`);
+            io.emit('receiveMessage', msg); 
         }).catch((err) => {
             console.error('Lỗi khi lưu tin nhắn:', err);
         });
-        io.emit('receiveMessage', msg);
     });
 
-    // Xử lý khi người dùng ngắt kết nối
     socket.on('disconnect', () => {
         if (visitEntry) {
             visitEntry.disconnectTime = new Date();
@@ -81,7 +80,7 @@ io.on('connection', (socket) => {
                 console.log(`${nickname} đã ngắt kết nối.`);
             });
         }
-        delete nicknames[socket.id]; // Xóa nickname khi ngắt kết nối
+        delete nicknames[socket.id]; 
     });
 });
 
@@ -113,6 +112,7 @@ app.post('/login', async (req, res) => {
 
 // Chạy server
 const PORT = process.env.PORT || 3000;
+
 server.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`Server đang chạy trên cổng ${PORT}`);
 });
