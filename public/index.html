@@ -37,6 +37,17 @@
         const messagesDiv = document.getElementById('messages');
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
+
+    // Lưu nickname vào localStorage
+    function saveNickname(nickname) {
+        localStorage.setItem('nickname', nickname);
+    }
+
+    // Lấy nickname từ localStorage
+    function getNickname() {
+        return localStorage.getItem('nickname');
+    }
+
     // Đăng ký tài khoản
     document.getElementById('register-btn').onclick = async function() {
         const email = document.getElementById('email').value;
@@ -72,7 +83,16 @@
         const data = await response.json();
         if (data.success) {
             document.getElementById('auth-container').style.display = 'none';
-            document.getElementById('chat-container').style.display = 'block';
+
+            // Kiểm tra xem có nickname trong localStorage không
+            const savedNickname = getNickname();
+            if (savedNickname) {
+                socket.emit('setNickname', savedNickname);
+                document.getElementById('chat-container').style.display = 'block';
+            } else {
+                document.getElementById('nickname-container').style.display = 'block';
+            }
+
             loadMessages();
         } else {
             alert(data.message);
@@ -84,6 +104,7 @@
         const nickname = document.getElementById('nickname').value;
 
         socket.emit('setNickname', nickname);
+        saveNickname(nickname);  // Lưu nickname vào localStorage
         document.getElementById('nickname-container').style.display = 'none';
         document.getElementById('chat-container').style.display = 'block';
     };
@@ -96,44 +117,46 @@
     };
 
     // Nhận tin nhắn
-socket.on('receiveMessage', (data) => {
-    const messagesDiv = document.getElementById('messages');
-    const messageElement = document.createElement('div');
+    socket.on('receiveMessage', (data) => {
+        const messagesDiv = document.getElementById('messages');
+        const messageElement = document.createElement('div');
 
-    // Tạo phần tử span cho nickname và áp dụng class 'nickname'
-    const nicknameElement = document.createElement('span');
-    nicknameElement.classList.add('nickname');
-    nicknameElement.textContent = `${data.nickname}: `;
+        // Tạo phần tử span cho nickname và áp dụng class 'nickname'
+        const nicknameElement = document.createElement('span');
+        nicknameElement.classList.add('nickname');
+        nicknameElement.textContent = `${data.nickname}: `;
 
-    // Thêm thuộc tính màu sắc cho nickname dựa trên màu của người dùng từ server
-    nicknameElement.style.color = data.color;  // Màu được gửi kèm từ server
+        // Thêm thuộc tính màu sắc cho nickname dựa trên màu của người dùng từ server
+        nicknameElement.style.color = data.color;  // Màu được gửi kèm từ server
 
-    // Tạo phần tử span cho tin nhắn và áp dụng class 'message'
-    const messageTextElement = document.createElement('span');
-    messageTextElement.classList.add('message');
-    messageTextElement.textContent = data.message;
+        // Tạo phần tử span cho tin nhắn và áp dụng class 'message'
+        const messageTextElement = document.createElement('span');
+        messageTextElement.classList.add('message');
+        messageTextElement.textContent = data.message;
 
-    // Thêm nickname và nội dung tin nhắn vào phần tử messageElement
-    messageElement.appendChild(nicknameElement);
-    messageElement.appendChild(messageTextElement);
-    
-    // Thêm tin nhắn mới vào phần chat
-    messagesDiv.appendChild(messageElement);
+        // Thêm nickname và nội dung tin nhắn vào phần tử messageElement
+        messageElement.appendChild(nicknameElement);
+        messageElement.appendChild(messageTextElement);
 
-    // Cuộn xuống khi có tin nhắn mới
-    scrollToBottom();
-});
+        // Thêm tin nhắn mới vào phần chat
+        messagesDiv.appendChild(messageElement);
+
+        // Cuộn xuống khi có tin nhắn mới
+        scrollToBottom();
+    });
+
     // Khi trang được tải lại
-document.addEventListener('DOMContentLoaded', () => {
-    socket.emit('getNickname');  // Yêu cầu nickname từ server
-});
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedNickname = getNickname();
+        if (savedNickname) {
+            socket.emit('setNickname', savedNickname);  // Thiết lập nickname từ localStorage
+            document.getElementById('auth-container').style.display = 'none';
+            document.getElementById('chat-container').style.display = 'block';
+        } else {
+            socket.emit('getNickname');  // Yêu cầu nickname từ server nếu không có trong localStorage
+        }
+    });
 
-// Nhận nickname từ server
-socket.on('nickname', (nick) => {
-    if (nick) {
-        socket.emit('setNickname', nick);  // Thiết lập nickname nếu có
-    }
-});
     function loadMessages() {
         // Gọi API để tải tin nhắn nếu cần
     }
