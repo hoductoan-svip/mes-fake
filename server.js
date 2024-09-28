@@ -24,7 +24,6 @@ const userSchema = new mongoose.Schema({
 const User = mongoose.model('User', userSchema);
 
 const messages = [];
-// Schema để lưu thông tin truy cập
 const visitLogSchema = new mongoose.Schema({
     nickname: String,
     connectTime: { type: Date, default: Date.now },
@@ -32,7 +31,6 @@ const visitLogSchema = new mongoose.Schema({
 });
 
 const VisitLog = mongoose.model('VisitLog', visitLogSchema);
-// Schema để lưu tin nhắn
 const messageSchema = new mongoose.Schema({
     nickname: String,
     message: String,
@@ -40,20 +38,21 @@ const messageSchema = new mongoose.Schema({
 });
 
 const Message = mongoose.model('Message', messageSchema);
+
+const nicknames = {};  // Đối tượng để lưu trữ nickname của từng socket
+
 io.on('connection', (socket) => {
     let nickname = '';
-    let color = '';  // Biến để lưu màu sắc của người dùng
-    let visitEntry = null;  // Biến để lưu thông tin truy cập của người dùng
+    let color = '';
+    let visitEntry = null;
 
-    // Mảng các màu sắc để lựa chọn
     const colors = ['#FF5733', '#33FF57', '#3357FF', '#F1C40F', '#8E44AD', '#E67E22', '#2ECC71'];
 
-    // Xử lý khi người dùng đặt nickname
     socket.on('setNickname', (nick) => {
         nickname = nick;
-        color = colors[Math.floor(Math.random() * colors.length)];  // Gán ngẫu nhiên một màu
+        color = colors[Math.floor(Math.random() * colors.length)];
+        nicknames[socket.id] = nickname; // Lưu nickname vào đối tượng nicknames
 
-        // Tạo bản ghi lịch sử truy cập khi người dùng đặt nickname
         visitEntry = new VisitLog({ nickname });
         visitEntry.save().then(() => {
             console.log(`${nickname} đã kết nối với màu: ${color}`);
@@ -62,33 +61,34 @@ io.on('connection', (socket) => {
 
     // Xử lý khi người dùng gửi tin nhắn
     socket.on('sendMessage', (message) => {
-        const msg = { nickname, message, color };  // Gửi kèm cả màu sắc của người dùng
-        messages.push(msg);  // Đẩy tin nhắn vào mảng để lưu trữ cục bộ
-
-        // Lưu tin nhắn vào MongoDB
+        const msg = { nickname, message, color };
+        messages.push(msg);
         const newMessage = new Message({ nickname, message });
         newMessage.save().then(() => {
             console.log(`Tin nhắn từ ${nickname} đã được lưu.`);
         }).catch((err) => {
             console.error('Lỗi khi lưu tin nhắn:', err);
         });
-
-        // Phát tin nhắn tới tất cả client kèm theo màu sắc của người dùng
         io.emit('receiveMessage', msg);
     });
 
     // Xử lý khi người dùng ngắt kết nối
     socket.on('disconnect', () => {
         if (visitEntry) {
-            visitEntry.disconnectTime = new Date();  // Ghi nhận thời gian ngắt kết nối
+            visitEntry.disconnectTime = new Date();
             visitEntry.save().then(() => {
                 console.log(`${nickname} đã ngắt kết nối.`);
             });
         }
+        delete nicknames[socket.id]; // Xóa nickname khi ngắt kết nối
+    });
+
+    // Khôi phục nickname từ localStorage khi người dùng kết nối lại
+    socket.on('getNickname', () => {
+        socket.emit('nickname', nicknames[socket.id]); // Gửi nickname đã lưu cho client
     });
 });
 
-// Đăng ký
 app.post('/register', async (req, res) => {
     const { email, password } = req.body;
     const existingUser = await User.findOne({ email });
@@ -102,7 +102,6 @@ app.post('/register', async (req, res) => {
     res.json({ success: true });
 });
 
-// Đăng nhập
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
     const user = await User.findOne({ email, password });
@@ -112,14 +111,6 @@ app.post('/login', async (req, res) => {
     }
 
     res.json({ success: true });
-});
-
-// Khôi phục nickname từ localStorage khi người dùng kết nối lại
-io.on('connection', (socket) => {
-    socket.on('getNickname', () => {
-        // Gửi nickname đã lưu cho client
-        socket.emit('nickname', nickname);
-    });
 });
 
 server.listen(3000, () => {
