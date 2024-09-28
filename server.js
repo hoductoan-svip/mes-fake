@@ -44,14 +44,44 @@ io.on('connection', (socket) => {
     let nickname = '';
     let visitEntry = null;  // Biến để lưu thông tin truy cập của người dùng
 
+    // Xử lý khi người dùng đặt nickname
     socket.on('setNickname', (nick) => {
         nickname = nick;
+
         // Tạo bản ghi lịch sử truy cập khi người dùng đặt nickname
         visitEntry = new VisitLog({ nickname });
         visitEntry.save().then(() => {
             console.log(`${nickname} đã kết nối.`);
         });
     });
+
+    // Xử lý khi người dùng gửi tin nhắn
+    socket.on('sendMessage', (message) => {
+        const msg = { nickname, message };  // Tạo đối tượng tin nhắn từ nickname và nội dung
+        messages.push(msg);  // Đẩy tin nhắn vào mảng để lưu trữ cục bộ
+
+        // Lưu tin nhắn vào MongoDB
+        const newMessage = new Message({ nickname, message });
+        newMessage.save().then(() => {
+            console.log(`Tin nhắn từ ${nickname} đã được lưu.`);
+        }).catch((err) => {
+            console.error('Lỗi khi lưu tin nhắn:', err);
+        });
+
+        // Phát tin nhắn tới tất cả client
+        io.emit('receiveMessage', msg);
+    });
+
+    // Xử lý khi người dùng ngắt kết nối
+    socket.on('disconnect', () => {
+        if (visitEntry) {
+            visitEntry.disconnectTime = new Date();  // Ghi nhận thời gian ngắt kết nối
+            visitEntry.save().then(() => {
+                console.log(`${nickname} đã ngắt kết nối.`);
+            });
+        }
+    });
+});
 
     socket.on('disconnect', () => {
         if (visitEntry) {
