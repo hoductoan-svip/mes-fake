@@ -4,7 +4,6 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const http = require('http');
 const socketIo = require('socket.io');
-const bcrypt = require('bcrypt');
 
 const app = express();
 const server = http.createServer(app);
@@ -16,19 +15,40 @@ app.use(bodyParser.json());
 app.use(express.static('public'));
 
 // Kết nối MongoDB
-mongoose.connect('mongodb+srv://nguyenthimycute1106:o1UWInZVVMJQx5M0@cluster1.ne5vi.mongodb.net/?retryWrites=true&w=majority&appName=cluster1&ssl=true', 
+mongoose.connect('mongodb+srv://<username>:<password>@cluster1.ne5vi.mongodb.net/?retryWrites=true&w=majority&appName=cluster1&ssl=true', 
 { useNewUrlParser: true, useUnifiedTopology: true })
 .then(() => console.log('Kết nối đến MongoDB thành công!'))
 .catch(err => console.error('Lỗi kết nối đến MongoDB:', err));
 
 // Định nghĩa schema và model
 const userSchema = new mongoose.Schema({
-    email: { type: String, unique: true },
+    email: String,
     password: String,
     nickname: String
 });
 
 const User = mongoose.model('User', userSchema);
+
+// Quản lý nickname
+const nicknames = {}; 
+
+io.on('connection', (socket) => {
+    let nickname = '';
+
+    socket.on('setNickname', (nick) => {
+        nickname = nick;
+        nicknames[socket.id] = nickname; 
+    });
+
+    socket.on('sendMessage', (message) => {
+        const msg = { nickname, message };
+        io.emit('receiveMessage', msg);
+    });
+
+    socket.on('disconnect', () => {
+        delete nicknames[socket.id]; 
+    });
+});
 
 // Route đăng ký
 app.post('/register', async (req, res) => {
@@ -39,8 +59,7 @@ app.post('/register', async (req, res) => {
         return res.status(400).json({ success: false, message: 'Email đã tồn tại!' });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const user = new User({ email, password: hashedPassword });
+    const user = new User({ email, password });
     await user.save();
     res.json({ success: true });
 });
@@ -48,9 +67,9 @@ app.post('/register', async (req, res) => {
 // Route đăng nhập
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email, password });
 
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+    if (!user) {
         return res.status(400).json({ success: false, message: 'Email hoặc mật khẩu không chính xác!' });
     }
 
@@ -59,7 +78,6 @@ app.post('/login', async (req, res) => {
 
 // Chạy server
 const PORT = process.env.PORT || 3000;
-
 server.listen(PORT, () => {
     console.log(`Server đang chạy trên cổng ${PORT}`);
 });
