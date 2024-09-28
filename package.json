@@ -15,6 +15,5 @@
     "express": "^4.21.0",
     "mongoose": "^8.7.0",
     "socket.io": "^4.8.0"
-    "emoji-button": "^3.0.0"  
   }
 }
