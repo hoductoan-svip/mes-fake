@@ -42,22 +42,27 @@ const messageSchema = new mongoose.Schema({
 const Message = mongoose.model('Message', messageSchema);
 io.on('connection', (socket) => {
     let nickname = '';
+    let color = '';  // Biến để lưu màu sắc của người dùng
     let visitEntry = null;  // Biến để lưu thông tin truy cập của người dùng
+
+    // Mảng các màu sắc để lựa chọn
+    const colors = ['#FF5733', '#33FF57', '#3357FF', '#F1C40F', '#8E44AD', '#E67E22', '#2ECC71'];
 
     // Xử lý khi người dùng đặt nickname
     socket.on('setNickname', (nick) => {
         nickname = nick;
+        color = colors[Math.floor(Math.random() * colors.length)];  // Gán ngẫu nhiên một màu
 
         // Tạo bản ghi lịch sử truy cập khi người dùng đặt nickname
         visitEntry = new VisitLog({ nickname });
         visitEntry.save().then(() => {
-            console.log(`${nickname} đã kết nối.`);
+            console.log(`${nickname} đã kết nối với màu: ${color}`);
         });
     });
 
     // Xử lý khi người dùng gửi tin nhắn
     socket.on('sendMessage', (message) => {
-        const msg = { nickname, message };  // Tạo đối tượng tin nhắn từ nickname và nội dung
+        const msg = { nickname, message, color };  // Gửi kèm cả màu sắc của người dùng
         messages.push(msg);  // Đẩy tin nhắn vào mảng để lưu trữ cục bộ
 
         // Lưu tin nhắn vào MongoDB
@@ -68,7 +73,7 @@ io.on('connection', (socket) => {
             console.error('Lỗi khi lưu tin nhắn:', err);
         });
 
-        // Phát tin nhắn tới tất cả client
+        // Phát tin nhắn tới tất cả client kèm theo màu sắc của người dùng
         io.emit('receiveMessage', msg);
     });
 
@@ -92,8 +97,6 @@ io.on('connection', (socket) => {
             });
         }
     });
-});
-
 // Đăng ký
 app.post('/register', async (req, res) => {
     const { email, password } = req.body;
