@@ -109,19 +109,21 @@ socket.on('receiveMessage', (data) => {
     // Thêm thuộc tính màu sắc cho nickname dựa trên màu của người dùng từ server
     nicknameElement.style.color = data.color;  // Màu được gửi kèm từ server
 
-    // Thêm nickname vào tin nhắn
+    // Tạo phần tử span cho tin nhắn và áp dụng class 'message'
+    const messageTextElement = document.createElement('span');
+    messageTextElement.classList.add('message');
+    messageTextElement.textContent = data.message;
+
+    // Thêm nickname và nội dung tin nhắn vào phần tử messageElement
     messageElement.appendChild(nicknameElement);
-
-    // Thêm nội dung tin nhắn vào div
-    messageElement.append(`${data.message}`);
-
+    messageElement.appendChild(messageTextElement);
+    
     // Thêm tin nhắn mới vào phần chat
     messagesDiv.appendChild(messageElement);
 
     // Cuộn xuống khi có tin nhắn mới
     scrollToBottom();
 });
-
     function loadMessages() {
         // Gọi API để tải tin nhắn nếu cần
     }
