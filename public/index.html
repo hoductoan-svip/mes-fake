@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
-    <title>Chat App</title>
+    <title>MessFake của Toàn</title>
 </head>
 <body>
     <div id="auth-container" style="display: block;">
@@ -22,15 +22,44 @@
     </div>
 
     <div id="chat-container" style="display: none;">
-        <h2>Chat</h2>
+        <h2>Thông báo: Admin đang thất tình mọi người vui lòng không trêu admin</h2>
         <div id="messages"></div>
         <input type="text" id="message" placeholder="Nhập tin nhắn" required>
+        <button id="emoji-btn">😀</button> <!-- Nút mở emoji picker -->
         <button id="send-btn">Gửi</button>
+        <button id="toggle-dark-mode">Chuyển chế độ tối</button> <!-- Nút chuyển đổi chế độ tối -->
     </div>
-
+<!-- Thêm thư viện Emoji Button -->
+    <script src="https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@4.6.2/dist/index.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.min.js"></script>
     <script>
         const socket = io();
+
+        // Tạo emoji picker từ EmojiButton library
+        const picker = new EmojiButton();
+
+        // Hiển thị emoji picker khi bấm vào nút
+        document.getElementById('emoji-btn').addEventListener('click', () => {
+            picker.togglePicker(document.getElementById('emoji-btn'));
+        });
+
+        // Chèn emoji vào ô nhập tin nhắn khi chọn emoji
+        picker.on('emoji', emoji => {
+            const messageInput = document.getElementById('message');
+            messageInput.value += emoji;
+        });
+
+        // Chuyển đổi chế độ tối
+        const toggleDarkModeBtn = document.getElementById('toggle-dark-mode');
+        toggleDarkModeBtn.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+        });
+
+        // Hàm cuộn xuống khi có tin nhắn mới
+        function scrollToBottom() {
+            const messagesDiv = document.getElementById('messages');
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
 
         // Đăng ký tài khoản
         document.getElementById('register-btn').onclick = async function() {
@@ -94,8 +123,41 @@
         socket.on('receiveMessage', (data) => {
             const messagesDiv = document.getElementById('messages');
             const messageElement = document.createElement('div');
-            messageElement.textContent = `${data.nickname}: ${data.message}`;
+
+            // Tạo phần tử span cho nickname và áp dụng class 'nickname'
+            const nicknameElement = document.createElement('span');
+            nicknameElement.classList.add('nickname');
+            nicknameElement.textContent = `${data.nickname}: `;
+
+            // Thêm thuộc tính màu sắc cho nickname dựa trên màu của người dùng từ server
+            nicknameElement.style.color = data.color;  // Màu được gửi kèm từ server
+
+            // Tạo phần tử span cho tin nhắn và áp dụng class 'message'
+            const messageTextElement = document.createElement('span');
+            messageTextElement.classList.add('message');
+            messageTextElement.textContent = data.message;
+
+            // Thêm nickname và nội dung tin nhắn vào phần tử messageElement
+            messageElement.appendChild(nicknameElement);
+            messageElement.appendChild(messageTextElement);
+
+            // Thêm tin nhắn mới vào phần chat
             messagesDiv.appendChild(messageElement);
+
+            // Cuộn xuống khi có tin nhắn mới
+            scrollToBottom();
+        });
+
+        // Khi trang được tải lại
+        document.addEventListener('DOMContentLoaded', () => {
+            socket.emit('getNickname');  // Yêu cầu nickname từ server
+        });
+
+        // Nhận nickname từ server
+        socket.on('nickname', (nick) => {
+            if (nick) {
+                socket.emit('setNickname', nick);  // Thiết lập nickname nếu có
+            }
         });
 
         function loadMessages() {
