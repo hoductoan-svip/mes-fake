@@ -100,15 +100,22 @@
 socket.on('receiveMessage', (data) => {
     const messagesDiv = document.getElementById('messages');
     const messageElement = document.createElement('div');
-    
+
     // Tạo phần tử span cho nickname và áp dụng class 'nickname'
     const nicknameElement = document.createElement('span');
     nicknameElement.classList.add('nickname');
     nicknameElement.textContent = `${data.nickname}: `;
 
+    // Thêm thuộc tính màu sắc cho nickname dựa trên màu của người dùng từ server
+    nicknameElement.style.color = data.color;  // Màu được gửi kèm từ server
+
     // Thêm nickname vào tin nhắn
     messageElement.appendChild(nicknameElement);
+
+    // Thêm nội dung tin nhắn vào div
     messageElement.append(`${data.message}`);
+
+    // Thêm tin nhắn mới vào phần chat
     messagesDiv.appendChild(messageElement);
 
     // Cuộn xuống khi có tin nhắn mới
