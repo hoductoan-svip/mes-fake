@@ -15,8 +15,8 @@ app.use(bodyParser.json());
 app.use(express.static('public'));
 
 // Kết nối MongoDB
-mongoose.connect('mongodb+srv://thanhalinh56:efKr1iSs7U3VvNws@cluster1.r0ghg.mongodb.net/cluster1?retryWrites=true&w=majority&appName=Cluster1&ssl=true', {
-});
+mongoose.connect('mongodb+srv://thanhalinh56:efKr1iSs7U3VvNws@cluster1.r0ghg.mongodb.net/cluster1?retryWrites=true&w=majority&appName=Cluster1&ssl=true', 
+
 
 // Định nghĩa schema và model
 const userSchema = new mongoose.Schema({
