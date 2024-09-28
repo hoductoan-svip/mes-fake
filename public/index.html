@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/emoji-mart/css/emoji-mart.css" />
     <title>MessFake của Toàn</title>
+    <!-- Thêm thư viện Emoji Button -->
+    <script src="https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@4.6.2/dist/index.min.js"></script>
 </head>
 <body>
     <div id="auth-container" style="display: block;">
@@ -25,19 +26,35 @@
     <div id="chat-container" style="display: none;">
         <h2>Thông báo: Admin đang thất tình mọi người vui lòng không trêu admin</h2>
         <div id="messages"></div>
-        <button id="dark-mode-toggle">Chế độ tối</button> <!-- Nút chuyển chế độ tối -->
-        <div class="chat-input">
-            <input type="text" id="message" placeholder="Nhập tin nhắn" required>
-            <button id="emoji-btn">😊</button> <!-- Nút chọn emoji -->
-            <button id="send-btn">Gửi</button>
-        </div>
-        <div id="emoji-picker" style="display:none;"></div> <!-- Bảng chọn emoji -->
+        <input type="text" id="message" placeholder="Nhập tin nhắn" required>
+        <button id="emoji-btn">😀</button> <!-- Nút mở emoji picker -->
+        <button id="send-btn">Gửi</button>
+        <button id="toggle-dark-mode">Chuyển chế độ tối</button> <!-- Nút chuyển đổi chế độ tối -->
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/emoji-mart/dist/emoji-mart.js"></script>
     <script>
         const socket = io();
+
+        // Tạo emoji picker từ EmojiButton library
+        const picker = new EmojiButton();
+
+        // Hiển thị emoji picker khi bấm vào nút
+        document.getElementById('emoji-btn').addEventListener('click', () => {
+            picker.togglePicker(document.getElementById('emoji-btn'));
+        });
+
+        // Chèn emoji vào ô nhập tin nhắn khi chọn emoji
+        picker.on('emoji', emoji => {
+            const messageInput = document.getElementById('message');
+            messageInput.value += emoji;
+        });
+
+        // Chuyển đổi chế độ tối
+        const toggleDarkModeBtn = document.getElementById('toggle-dark-mode');
+        toggleDarkModeBtn.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+        });
 
         // Hàm cuộn xuống khi có tin nhắn mới
         function scrollToBottom() {
@@ -124,7 +141,7 @@
             // Thêm nickname và nội dung tin nhắn vào phần tử messageElement
             messageElement.appendChild(nicknameElement);
             messageElement.appendChild(messageTextElement);
-            
+
             // Thêm tin nhắn mới vào phần chat
             messagesDiv.appendChild(messageElement);
 
@@ -143,31 +160,6 @@
                 socket.emit('setNickname', nick);  // Thiết lập nickname nếu có
             }
         });
-
-        // Thêm biểu tượng cảm xúc vào khung chat
-        const picker = new EmojiMart.Picker({
-            onEmojiSelect: (emoji) => {
-                document.getElementById('message').value += emoji.native; // Thêm emoji vào tin nhắn
-            },
-        });
-
-        document.getElementById('emoji-btn').addEventListener('click', () => {
-            const pickerDiv = document.getElementById('emoji-picker');
-            pickerDiv.style.display = pickerDiv.style.display === 'none' ? 'block' : 'none';
-            pickerDiv.appendChild(picker);
-        });
-
-        // Chế độ tối (dark mode)
-        document.getElementById('dark-mode-toggle').addEventListener('click', () => {
-            document.body.classList.toggle('dark-mode');
-            const isDarkMode = document.body.classList.contains('dark-mode');
-            localStorage.setItem('dark-mode', isDarkMode ? 'enabled' : 'disabled');
-        });
-
-        // Giữ trạng thái chế độ tối khi tải lại trang
-        if (localStorage.getItem('dark-mode') === 'enabled') {
-            document.body.classList.add('dark-mode');
-        }
 
         function loadMessages() {
             // Gọi API để tải tin nhắn nếu cần
