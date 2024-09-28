@@ -24,18 +24,43 @@ const userSchema = new mongoose.Schema({
 const User = mongoose.model('User', userSchema);
 
 const messages = [];
+// Schema để lưu thông tin truy cập
+const visitLogSchema = new mongoose.Schema({
+    nickname: String,
+    connectTime: { type: Date, default: Date.now },
+    disconnectTime: Date
+});
 
+const VisitLog = mongoose.model('VisitLog', visitLogSchema);
+// Schema để lưu tin nhắn
+const messageSchema = new mongoose.Schema({
+    nickname: String,
+    message: String,
+    timestamp: { type: Date, default: Date.now }
+});
+
+const Message = mongoose.model('Message', messageSchema);
 io.on('connection', (socket) => {
     let nickname = '';
+    let visitEntry = null;  // Biến để lưu thông tin truy cập của người dùng
 
     socket.on('setNickname', (nick) => {
         nickname = nick;
+        // Tạo bản ghi lịch sử truy cập khi người dùng đặt nickname
+        visitEntry = new VisitLog({ nickname });
+        visitEntry.save().then(() => {
+            console.log(`${nickname} đã kết nối.`);
+        });
     });
 
-    socket.on('sendMessage', (message) => {
-        const msg = { nickname, message };
-        messages.push(msg);
-        io.emit('receiveMessage', msg);
+    socket.on('disconnect', () => {
+        if (visitEntry) {
+            // Cập nhật thời gian ngắt kết nối khi người dùng rời đi
+            visitEntry.disconnectTime = new Date();
+            visitEntry.save().then(() => {
+                console.log(`${nickname} đã ngắt kết nối.`);
+            });
+        }
     });
 });
 
