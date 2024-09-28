@@ -87,6 +87,7 @@ io.on('connection', (socket) => {
         }
     });
 });
+
 // Đăng ký
 app.post('/register', async (req, res) => {
     const { email, password } = req.body;
@@ -111,6 +112,14 @@ app.post('/login', async (req, res) => {
     }
 
     res.json({ success: true });
+});
+
+// Khôi phục nickname từ localStorage khi người dùng kết nối lại
+io.on('connection', (socket) => {
+    socket.on('getNickname', () => {
+        // Gửi nickname đã lưu cho client
+        socket.emit('nickname', nickname);
+    });
 });
 
 server.listen(3000, () => {
