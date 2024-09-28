@@ -15,7 +15,7 @@ app.use(bodyParser.json());
 app.use(express.static('public'));
 
 // Kết nối MongoDB
-mongoose.connect('mongodb+srv://thanhalinh56:efKr1iSs7U3VvNws@cluster1.r0ghg.mongodb.net/cluster1?retryWrites=true&w=majority&appName=Cluster1&ssl=true', 
+mongoose.connect('mongodb+srv://nguyenthimycute1106:o1UWInZVVMJQx5M0@cluster1.ne5vi.mongodb.net/?retryWrites=true&w=majority&appName=cluster1ssl=true', 
 { useNewUrlParser: true, useUnifiedTopology: true })
 .then(() => console.log('Kết nối đến MongoDB thành công!'))
 .catch(err => console.error('Lỗi kết nối đến MongoDB:', err));
