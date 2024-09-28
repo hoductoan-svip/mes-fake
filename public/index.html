@@ -37,7 +37,6 @@
         const messagesDiv = document.getElementById('messages');
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
-
     // Đăng ký tài khoản
     document.getElementById('register-btn').onclick = async function() {
         const email = document.getElementById('email').value;
@@ -123,6 +122,17 @@ socket.on('receiveMessage', (data) => {
 
     // Cuộn xuống khi có tin nhắn mới
     scrollToBottom();
+});
+    // Khi trang được tải lại
+document.addEventListener('DOMContentLoaded', () => {
+    socket.emit('getNickname');  // Yêu cầu nickname từ server
+});
+
+// Nhận nickname từ server
+socket.on('nickname', (nick) => {
+    if (nick) {
+        socket.emit('setNickname', nick);  // Thiết lập nickname nếu có
+    }
 });
     function loadMessages() {
         // Gọi API để tải tin nhắn nếu cần
