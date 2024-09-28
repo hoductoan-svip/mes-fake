@@ -87,16 +87,6 @@ io.on('connection', (socket) => {
         }
     });
 });
-
-    socket.on('disconnect', () => {
-        if (visitEntry) {
-            // Cập nhật thời gian ngắt kết nối khi người dùng rời đi
-            visitEntry.disconnectTime = new Date();
-            visitEntry.save().then(() => {
-                console.log(`${nickname} đã ngắt kết nối.`);
-            });
-        }
-    });
 // Đăng ký
 app.post('/register', async (req, res) => {
     const { email, password } = req.body;
