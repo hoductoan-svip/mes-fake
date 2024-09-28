@@ -8,12 +8,24 @@ body {
     margin: 0;
 }
 
+body.dark-mode {
+    background-color: #121212;
+    color: #ffffff;
+}
+
 #auth-container, #chat-container, #nickname-container {
     background-color: white;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     width: 300px;
+}
+
+body.dark-mode #auth-container, 
+body.dark-mode #chat-container, 
+body.dark-mode #nickname-container {
+    background-color: #1e1e1e;
+    color: #ffffff;
 }
 
 h2 {
@@ -29,6 +41,12 @@ input {
     border-radius: 5px;
 }
 
+body.dark-mode input {
+    background-color: #333333;
+    color: #ffffff;
+    border: 1px solid #555555;
+}
+
 button {
     padding: 10px 20px;
     background-color: #ff69b4;
@@ -37,6 +55,10 @@ button {
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s;
+}
+
+body.dark-mode button {
+    background-color: #ff1493;
 }
 
 button:hover {
@@ -52,6 +74,11 @@ button:hover {
     background-color: #f9f9f9;
 }
 
+body.dark-mode #messages {
+    border: 1px solid #444444;
+    background-color: #222222;
+}
+
 .message {
     margin-bottom: 5px;
     font-family: 'Arial', sans-serif; /* Hoặc 'Verdana', sans-serif; */
@@ -59,15 +86,28 @@ button:hover {
     color: #333; /* Màu sắc của tin nhắn */
 }
 
+body.dark-mode .message {
+    color: #ffffff; /* Màu sắc tin nhắn trong chế độ tối */
+}
+
 .message.sender {
     text-align: right;
     color: #1e90ff;
+}
+
+body.dark-mode .message.sender {
+    color: #87cefa; /* Màu sắc của tin nhắn gửi trong chế độ tối */
 }
 
 .message.receiver {
     text-align: left;
     color: #ff4500;
 }
+
+body.dark-mode .message.receiver {
+    color: #ff6347; /* Màu sắc của tin nhắn nhận trong chế độ tối */
+}
+
 /* Style cho nickname */
 .nickname {
     font-family: 'Arial', sans-serif; /* Hoặc 'Verdana', sans-serif; */ 
@@ -76,3 +116,6 @@ button:hover {
     color: #FF5733; /* Màu sắc tùy chỉnh (ngài có thể thay đổi) */
 }
 
+body.dark-mode .nickname {
+    color: #ff8c00; /* Màu sắc nickname trong chế độ tối */
+}
