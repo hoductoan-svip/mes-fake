@@ -9,18 +9,12 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
-// Middleware
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
-// Kết nối MongoDB
-mongoose.connect('mongodb+srv://<username>:<password>@cluster1.ne5vi.mongodb.net/?retryWrites=true&w=majority&appName=cluster1&ssl=true', 
-{ useNewUrlParser: true, useUnifiedTopology: true })
-.then(() => console.log('Kết nối đến MongoDB thành công!'))
-.catch(err => console.error('Lỗi kết nối đến MongoDB:', err));
+mongoose.connect('mongodb+srv://thanhalinh56:efKr1iSs7U3VvNws@cluster1.r0ghg.mongodb.net/cluster1?retryWrites=true&w=majority&appName=Cluster1&ssl=true');
 
-// Định nghĩa schema và model
 const userSchema = new mongoose.Schema({
     email: String,
     password: String,
@@ -29,28 +23,72 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model('User', userSchema);
 
-// Quản lý nickname
-const nicknames = {}; 
+const messages = [];
+const visitLogSchema = new mongoose.Schema({
+    nickname: String,
+    connectTime: { type: Date, default: Date.now },
+    disconnectTime: Date
+});
+
+const VisitLog = mongoose.model('VisitLog', visitLogSchema);
+const messageSchema = new mongoose.Schema({
+    nickname: String,
+    message: String,
+    timestamp: { type: Date, default: Date.now }
+});
+
+const Message = mongoose.model('Message', messageSchema);
+
+const nicknames = {};  // Đối tượng để lưu trữ nickname của từng socket
 
 io.on('connection', (socket) => {
     let nickname = '';
+    let color = '';
+    let visitEntry = null;
+
+    const colors = ['#FF5733', '#33FF57', '#3357FF', '#F1C40F', '#8E44AD', '#E67E22', '#2ECC71'];
 
     socket.on('setNickname', (nick) => {
         nickname = nick;
-        nicknames[socket.id] = nickname; 
+        color = colors[Math.floor(Math.random() * colors.length)];
+        nicknames[socket.id] = nickname; // Lưu nickname vào đối tượng nicknames
+
+        visitEntry = new VisitLog({ nickname });
+        visitEntry.save().then(() => {
+            console.log(`${nickname} đã kết nối với màu: ${color}`);
+        });
     });
 
+    // Xử lý khi người dùng gửi tin nhắn
     socket.on('sendMessage', (message) => {
-        const msg = { nickname, message };
+        const msg = { nickname, message, color };
+        messages.push(msg);
+        const newMessage = new Message({ nickname, message });
+        newMessage.save().then(() => {
+            console.log(`Tin nhắn từ ${nickname} đã được lưu.`);
+        }).catch((err) => {
+            console.error('Lỗi khi lưu tin nhắn:', err);
+        });
         io.emit('receiveMessage', msg);
     });
 
+    // Xử lý khi người dùng ngắt kết nối
     socket.on('disconnect', () => {
-        delete nicknames[socket.id]; 
+        if (visitEntry) {
+            visitEntry.disconnectTime = new Date();
+            visitEntry.save().then(() => {
+                console.log(`${nickname} đã ngắt kết nối.`);
+            });
+        }
+        delete nicknames[socket.id]; // Xóa nickname khi ngắt kết nối
+    });
+
+    // Khôi phục nickname từ localStorage khi người dùng kết nối lại
+    socket.on('getNickname', () => {
+        socket.emit('nickname', nicknames[socket.id]); // Gửi nickname đã lưu cho client
     });
 });
 
-// Route đăng ký
 app.post('/register', async (req, res) => {
     const { email, password } = req.body;
     const existingUser = await User.findOne({ email });
@@ -64,7 +102,6 @@ app.post('/register', async (req, res) => {
     res.json({ success: true });
 });
 
-// Route đăng nhập
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
     const user = await User.findOne({ email, password });
@@ -76,8 +113,6 @@ app.post('/login', async (req, res) => {
     res.json({ success: true });
 });
 
-// Chạy server
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-    console.log(`Server đang chạy trên cổng ${PORT}`);
+server.listen(3000, () => {
+    console.log('Server is running on http://localhost:3000');
 });
