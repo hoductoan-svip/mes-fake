@@ -54,7 +54,7 @@ button:hover {
 
 .message {
     margin-bottom: 5px;
-    font-family: 'Comic Sans MS', cursive, sans-serif; /* Sử dụng font Comic Sans MS */
+    font-family: 'Arial', sans-serif; /* Hoặc 'Verdana', sans-serif; */
     font-size: 0.9em; /* Kích thước chữ nhỏ hơn so với nickname */
     color: #333; /* Màu sắc của tin nhắn */
 }
@@ -70,7 +70,7 @@ button:hover {
 }
 /* Style cho nickname */
 .nickname {
-    font-family: 'Comic Sans MS', cursive, sans-serif; /* Sử dụng font Comic Sans MS */
+    font-family: 'Arial', sans-serif; /* Hoặc 'Verdana', sans-serif; */ 
     font-size: 1.2em; /* Kích thước chữ lớn hơn */
     font-weight: bold; /* Đậm */
     color: #FF5733; /* Màu sắc tùy chỉnh (ngài có thể thay đổi) */
