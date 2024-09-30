@@ -75,3 +75,7 @@ button:hover {
     font-weight: bold; /* Äáº­m */
     color: #FF5733; /* MĂ u sáº¯c tĂ¹y chá»‰nh (ngĂ i cĂ³ thá»ƒ thay Ä‘á»•i) */
 }
+.centered-text {
+    text-align: center;
+    font-size: 1.2em;
+}
