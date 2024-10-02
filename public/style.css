@@ -30,6 +30,8 @@ input {
     margin: 10px 0;
     border: 1px solid #ccc;
     border-radius: 5px;
+    background-color: rgba(26, 2, 26, 0.4);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 1);
 }
 
 button {
