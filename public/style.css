@@ -1,3 +1,8 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 body {
     font-family: 'Arial', sans-serif;
     background-image: url('/1.jpg'); /* Đường dẫn đến ảnh nền */
@@ -17,6 +22,7 @@ body {
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(255, 255, 255, 1);
     width: 300px;
+    
 }
 
 h2 {
@@ -33,7 +39,9 @@ input {
     background-color: rgba(26, 2, 26, 0.4);
     box-shadow: 0 0 10px rgba(255, 255, 255, 1);
 }
-
+input[type="email"], input[type="password"], input[type="text"] {
+    color: #cb6196;  /* Màu chữ */
+}
 button {
     padding: 10px 20px;
     background-color: #ff69b4;
@@ -54,7 +62,7 @@ button:hover {
     height: 300px;
     overflow-y: scroll;
     margin-bottom: 10px;
-    background-color: #f9f9f9;
+    background-color: rgba(26, 2, 26, 0.4);
 }
 
 .message {
