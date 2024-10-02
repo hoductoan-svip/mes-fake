@@ -1,8 +1,3 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
 body {
     font-family: 'Arial', sans-serif;
     background-image: url('/1.jpg'); /* Đường dẫn đến ảnh nền */
@@ -38,6 +33,7 @@ input {
     border-radius: 5px;
     background-color: rgba(26, 2, 26, 0.4);
     box-shadow: 0 0 10px rgba(255, 255, 255, 1);
+    box-sizing: border-box;
 }
 input[type="email"], input[type="password"], input[type="text"] {
     color: #cb6196;  /* Màu chữ */
