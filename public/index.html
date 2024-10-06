@@ -157,7 +157,31 @@ document.getElementById('message').addEventListener('keypress', function(event) 
         // Cuộn xuống khi có tin nhắn mới
         scrollToBottom();
     });
+    socket.on('connect', () => {
+    const savedNickname = getNickname();
+    if (savedNickname) {
+        socket.emit('setNickname', savedNickname);
+    }
+});
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+        const savedNickname = getNickname();
+        if (savedNickname) {
+            socket.emit('setNickname', savedNickname);
+        }
+    }
+});
+    socket.on('disconnect', () => {
+    console.log('Disconnected from server');
+});
 
+socket.on('connect', () => {
+    console.log('Reconnected to server');
+    const savedNickname = getNickname();
+    if (savedNickname) {
+        socket.emit('setNickname', savedNickname);
+    }
+});
     // Đăng xuất người dùng
     document.getElementById('logout-btn').onclick = function() {
         localStorage.removeItem('nickname');  // Xóa nickname khỏi localStorage
