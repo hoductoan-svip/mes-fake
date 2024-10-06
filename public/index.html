@@ -113,12 +113,22 @@
     };
 
     // Gửi tin nhắn
-    document.getElementById('send-btn').onclick = function() {
-        const message = document.getElementById('message').value;
-        socket.emit('sendMessage', message);
-        document.getElementById('message').value = '';
-    };
+document.getElementById('send-btn').onclick = function() {
+    const message = document.getElementById('message').value;
+    socket.emit('sendMessage', message);
+    document.getElementById('message').value = '';
+};
 
+// Gửi tin nhắn khi nhấn phím Enter
+document.getElementById('message').addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') {
+        const message = document.getElementById('message').value;
+        if (message.trim() !== '') {  // Kiểm tra nếu tin nhắn không rỗng
+            socket.emit('sendMessage', message);
+            document.getElementById('message').value = '';  // Xóa ô nhập sau khi gửi
+        }
+    }
+});
     // Nhận tin nhắn
     socket.on('receiveMessage', (data) => {
         const messagesDiv = document.getElementById('messages');
