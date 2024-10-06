@@ -1,9 +1,9 @@
 body {
     font-family: 'Arial', sans-serif;
-    background-image: url('/1.jpg'); /* Đường dẫn đến ảnh nền */
-    background-size: cover; /* Ảnh nền bao phủ toàn bộ màn hình */
-    background-position: center; /* Căn giữa ảnh nền */
-    background-repeat: no-repeat; /* Không lặp lại ảnh */
+    background-image: url('/1.jpg'); 
+    background-size: cover; 
+    background-position: center; 
+    background-repeat: no-repeat; 
     display: flex;
     justify-content: center;
     align-items: center;
@@ -42,7 +42,7 @@ input {
     box-sizing: border-box;
 }
 input[type="email"], input[type="password"], input[type="text"] {
-    color: #cb6196;  /* Màu chữ */
+    color: #cb6196;  
 }
 button {
     padding: 10px 20px;
@@ -69,9 +69,9 @@ button:hover {
 
 .message {
     margin-bottom: 5px;
-    font-family: 'Arial', sans-serif; /* Hoáº·c 'Verdana', sans-serif; */
-    font-size: 0.7em; /* KĂ­ch thÆ°á»›c chá»¯ nhá» hÆ¡n so vá»›i nickname */
-    color: #cb6196; /* MĂ u sáº¯c cá»§a tin nháº¯n */
+    font-family: 'Arial', sans-serif; 
+    font-size: 0.7em; 
+    color: #cb6196; 
 }
 
 .message.sender {
@@ -83,12 +83,12 @@ button:hover {
     text-align: left;
     color: #ff4500;
 }
-/* Style cho nickname */
+
 .nickname {
-    font-family: 'Arial', sans-serif; /* Hoáº·c 'Verdana', sans-serif; */ 
-    font-size: 0.8em; /* KĂ­ch thÆ°á»›c chá»¯ lá»›n hÆ¡n */
-    font-weight: bold; /* Äáº­m */
-    color: #FF5733; /* MĂ u sáº¯c tĂ¹y chá»‰nh (ngĂ i cĂ³ thá»ƒ thay Ä‘á»•i) */
+    font-family: 'Arial', sans-serif;
+    font-size: 0.8em; 
+    font-weight: bold; 
+    color: #FF5733; 
 }
 .centered-text {
     text-align: center;
